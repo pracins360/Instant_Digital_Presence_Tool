@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Digital_Presence_Assistant - 7-Day Trial</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* CRITICAL CSS ONLY */
+    :root { font-family: system-ui; line-height: 1.6; }
+    body { margin: 0; background: #0f172a; color: #e5e7eb; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+    .container { max-width: 1000px; width: 95%; margin: 1rem; background: #020617; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; }
+    @media (max-width: 768px) { .container { flex-direction: column; } }
+    .panel { padding: 1.5rem; flex: 1; }
+    .generator { background: radial-gradient(circle at top left, #1d4ed8, #020617 60%); }
+    
+    .trial-banner { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1rem; text-align: center; border-radius: 0.5rem; margin-bottom: 1rem; }
+    .trial-counter { font-size: 1.1rem; font-weight: 600; margin: 0.5rem 0; }
+    
+    h1 { margin: 0 0 0.5rem; font-size: 1.5rem; color: white; }
+    .field { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.25rem; font-size: 0.9rem; }
+    input, textarea, select { width: 100%; padding: 0.6rem; border-radius: 0.4rem; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; }
+    input:disabled, textarea:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; }
+    textarea { min-height: 60px; resize: vertical; }
+    button { background: #22c55e; color: #022c22; border: none; padding: 0.7rem 1.5rem; border-radius: 2rem; font-weight: 600; cursor: pointer; width: 100%; }
+    .output { margin: 1rem 0; }
+    .output textarea { font-family: monospace; font-size: 0.8rem; background: #1e293b; }
+    .url-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .url-actions button { width: auto; padding: 0.4rem 1rem; font-size: 0.8rem; }
+    
+    .upgrade-prompt { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; text-align: center; display: none; }
+    .trial-expired { text-align: center; padding: 2rem; display: none; }
+    
+    .preview { background: #020617; border-left: 1px solid #334155; }
+    .preview-shell { background: white; color: #1f2937; border-radius: 0.5rem; overflow: hidden; margin: 1rem 0; }
+    .preview-header { padding: 1rem; background: #1e293b; color: white; }
+    .preview-body { padding: 1rem; }
+    
+    /* Tier badges */
+    .tier-badge { 
+      display: inline-block; 
+      padding: 0.2rem 0.6rem; 
+      border-radius: 1rem; 
+      font-size: 0.7rem; 
+      font-weight: 600; 
+      margin-left: 0.5rem; 
+    }
+    .tier-starter { background: #f59e0b; color: #451a03; }
+    .tier-pro { background: #ef4444; color: white; }
+    
+    /* Feature teaser */
+    .feature-teaser { 
+      background: rgba(245, 158, 11, 0.1); 
+      border: 1px solid rgba(245, 158, 11, 0.3); 
+      padding: 0.75rem; 
+      border-radius: 0.5rem; 
+      margin: 0.5rem 0; 
+      font-size: 0.85rem; 
+    }
+    
+    /* Pricing tiers */
+    .pricing-tiers { display: none; margin: 2rem 0; }
+    .tier-card { 
+      background: rgba(15,23,42,0.8); 
+      border: 1px solid #334155; 
+      border-radius: 1rem; 
+      padding: 1.5rem; 
+      margin: 1rem 0; 
+    }
+    .tier-card.featured { border: 2px solid #22c55e; }
+    .tier-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .tier-price { font-size: 1.5rem; font-weight: 700; color: #22c55e; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Generator Panel -->
+    <div class="panel generator">
+      <!-- Trial Banner -->
+      <div class="trial-banner" id="trialBanner">
+        <div>🎁 FREE 7-DAY TRIAL</div>
+        <div class="trial-counter" id="trialCounter">7 days remaining</div>
+        <div style="font-size: 0.85rem;">Text-only campaigns • Upgrade for images & branding</div>
+      </div>
+      
+      <!-- Upgrade Prompt -->
+      <div class="upgrade-prompt" id="upgradePrompt">
+        <strong>🚀 Ready for more?</strong>
+        <div style="font-size: 0.9rem; margin: 0.5rem 0;">Upgrade for images, branding & unlimited campaigns</div>
+        <button onclick="showPricing()" style="background: white; color: #f5576c; padding: 0.4rem 1rem;">View Plans</button>
+      </div>
+      
+      <!-- Trial Expired -->
+      <div class="trial-expired" id="trialExpired">
+        <h2>⏰ Trial Expired</h2>
+        <p>Upgrade to continue creating promo pages</p>
+        <button onclick="showPricing()">Choose Plan</button>
+      </div>
+      
+      <!-- Pricing Tiers -->
+      <div class="pricing-tiers" id="pricingTiers">
+        <h2>Choose Your Plan</h2>
+        
+        <div class="tier-card">
+          <div class="tier-name">Starter - $9/month</div>
+          <div class="tier-price">$9<span style="font-size: 1rem;">/month</span></div>
+          <div>
+            <div>✅ Background Images</div>
+            <div>✅ Promo Images</div>
+            <div>✅ 5 Active Campaigns</div>
+            <div>✅ 30-day Pages</div>
+            <div>❌ Logo Branding</div>
+            <div>❌ Custom Colors</div>
+          </div>
+          <button onclick="upgradeTo('starter')" style="margin-top: 1rem;">Choose Starter</button>
+        </div>
+        
+        <div class="tier-card featured">
+          <div style="background: #22c55e; color: #022c22; padding: 0.5rem; border-radius: 0.5rem; text-align: center; margin-bottom: 1rem;">
+            MOST POPULAR
+          </div>
+          <div class="tier-name">Professional - $29/month</div>
+          <div class="tier-price">$29<span style="font-size: 1rem;">/month</span></div>
+          <div>
+            <div>✅ Everything in Starter</div>
+            <div>✅ Logo Upload</div>
+            <div>✅ Custom Colors</div>
+            <div>✅ Unlimited Campaigns</div>
+            <div>✅ 1-year Pages</div>
+            <div>✅ Priority Support</div>
+          </div>
+          <button onclick="upgradeTo('pro')" style="margin-top: 1rem;">Choose Professional</button>
+        </div>
+      </div>
+      
+      <!-- Main Form -->
+      <div id="mainForm">
+        <h1>Create Promo Page</h1>
+        
+        <form id="campaignForm">
+          <div class="field">
+            <label for="businessName">Business Name *</label>
+            <input type="text" id="businessName" placeholder="Your Business" required>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div class="field">
+              <label for="businessPhone">Phone</label>
+              <input type="tel" id="businessPhone" placeholder="+1 234 567 890">
+            </div>
+            <div class="field">
+              <label for="businessEmail">Email</label>
+              <input type="email" id="businessEmail" placeholder="hello@business.com">
+            </div>
+          </div>
+          
+          <div class="field">
+            <label for="offerText">Special Offer *</label>
+            <textarea id="offerText" placeholder="Describe your promotion..." required></textarea>
+          </div>
+
+          <!-- TIER-GATED IMAGE FIELDS -->
+          <div class="field">
+            <label for="backgroundImage">
+              Background Image URL 
+              <span class="tier-badge tier-starter">Starter+</span>
+            </label>
+            <input type="text" id="backgroundImage" placeholder="https://example.com/background.jpg" disabled>
+            <div class="feature-teaser">
+              🎨 <strong>Make it beautiful!</strong> Add background images with Starter plan ($9/month)
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="promoImage">
+              Promo Image URL 
+              <span class="tier-badge tier-starter">Starter+</span>
+            </label>
+            <input type="text" id="promoImage" placeholder="https://example.com/promo-image.jpg" disabled>
+            <div class="feature-teaser">
+              📸 <strong>Show your offer!</strong> Add product images with Starter plan ($9/month)
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="logoImage">
+              Logo URL 
+              <span class="tier-badge tier-pro">Pro+</span>
+            </label>
+            <input type="text" id="logoImage" placeholder="https://example.com/logo.png" disabled>
+            <div class="feature-teaser">
+              ⭐ <strong>Build your brand!</strong> Add your logo with Pro plan ($29/month)
+            </div>
+          </div>
+          <!-- END TIER-GATED FIELDS -->
+          
+          <div class="field">
+            <label for="expiryDate">Expiry Date</label>
+            <input type="date" id="expiryDate">
+          </div>
+          
+          <button type="submit">Generate Promo Page</button>
+        </form>
+        
+        <!-- Generated URL -->
+        <div class="output" id="outputSection" style="display: none;">
+          <label>Your Promo URL:</label>
+          <textarea id="generatedUrl" readonly></textarea>
+          <div class="url-actions">
+            <button onclick="copyUrl()">📋 Copy URL</button>
+            <button onclick="shortenUrl()" style="background: #3b82f6;">🔗 Shorten</button>
+          </div>
+          <div id="qrcode" style="margin-top: 1rem;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Preview Panel -->
+    <div class="panel preview">
+      <h2 style="color: white; margin-top: 0;">Live Preview</h2>
+      <div id="previewContent">
+        <div class="preview-shell">
+          <div class="preview-header">
+            <h3 style="margin: 0;">Your Business</h3>
+          </div>
+          <div class="preview-body">
+            <p>Your promotion will appear here...</p>
+            <div style="background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; text-align: center; margin-top: 1rem;">
+              <strong>🎨 Upgrade to see images here!</strong>
+              <div style="font-size: 0.8rem; color: #6b7280; margin-top: 0.5rem;">
+                Starter: Background & promo images<br>
+                Pro: Logo + full branding
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    // ===== TRIAL MANAGEMENT =====
+    class TrialManager {
+      constructor() {
+        this.trialDays = 7;
+        this.campaignLimit = 1;
+        this.startDate = this.getStartDate();
+        this.currentTier = this.getCurrentTier();
+      }
+      
+      getStartDate() {
+        let start = localStorage.getItem('orbitTrialStart');
+        if (!start) {
+          start = new Date().toISOString();
+          localStorage.setItem('orbitTrialStart', start);
+        }
+        return new Date(start);
+      }
+
+      getCurrentTier() {
+        return localStorage.getItem('orbitTier') || 'trial';
+      }
+
+      setTier(tier) {
+        this.currentTier = tier;
+        localStorage.setItem('orbitTier', tier);
+        this.enableTierFeatures();
+      }
+      
+      getDaysRemaining() {
+        const end = new Date(this.startDate);
+        end.setDate(end.getDate() + this.trialDays);
+        const now = new Date();
+        const diff = end - now;
+        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+      }
+      
+      getCampaignCount() {
+        return parseInt(localStorage.getItem('orbitCampaigns') || '0');
+      }
+      
+      canCreateCampaign() {
+        if (this.currentTier !== 'trial') return true;
+        return this.getDaysRemaining() > 0 && this.getCampaignCount() < this.campaignLimit;
+      }
+      
+      trackCampaign() {
+        const count = this.getCampaignCount() + 1;
+        localStorage.setItem('orbitCampaigns', count.toString());
+      }
+
+      enableTierFeatures() {
+        const bgImage = document.getElementById('backgroundImage');
+        const promoImage = document.getElementById('promoImage');
+        const logoImage = document.getElementById('logoImage');
+
+        // Enable fields based on tier
+        if (this.currentTier === 'starter' || this.currentTier === 'pro') {
+          bgImage.disabled = false;
+          promoImage.disabled = false;
+          bgImage.placeholder = "Enter background image URL";
+          promoImage.placeholder = "Enter promo image URL";
+        }
+
+        if (this.currentTier === 'pro') {
+          logoImage.disabled = false;
+          logoImage.placeholder = "Enter logo URL";
+        }
+
+        // Hide teaser messages for enabled features
+        this.updateTeaserMessages();
+      }
+
+      updateTeaserMessages() {
+        const teasers = document.querySelectorAll('.feature-teaser');
+        teasers.forEach(teaser => {
+          if (this.currentTier !== 'trial') {
+            teaser.style.display = 'none';
+          }
+        });
+      }
+      
+      updateUI() {
+        const days = this.getDaysRemaining();
+        const campaigns = this.getCampaignCount();
+        
+        // Update counter
+        document.getElementById('trialCounter').textContent = 
+          `${days} day${days !== 1 ? 's' : ''} remaining`;
+        
+        // Show upgrade prompt after 3 days (only for trial users)
+        if (days <= 4 && this.currentTier === 'trial') {
+          document.getElementById('upgradePrompt').style.display = 'block';
+        }
+        
+        // Handle expiration
+        if (days === 0 && this.currentTier === 'trial') {
+          document.getElementById('trialExpired').style.display = 'block';
+          document.getElementById('mainForm').style.display = 'none';
+          document.getElementById('trialBanner').style.display = 'none';
+        }
+        
+        // Update banner for paid users
+        if (this.currentTier !== 'trial') {
+          document.getElementById('trialBanner').innerHTML = `
+            <div>⭐ ${this.currentTier.toUpperCase()} PLAN</div>
+            <div class="trial-counter">Full Features Active</div>
+            <div style="font-size: 0.85rem;">${this.getTierFeatures()}</div>
+          `;
+        }
+      }
+
+      getTierFeatures() {
+        switch(this.currentTier) {
+          case 'starter': return 'Background & promo images • 5 campaigns';
+          case 'pro': return 'Logo + full branding • Unlimited campaigns';
+          default: return 'Text-only campaigns • Upgrade for images & branding';
+        }
+      }
+    }
+
+    // ===== CORE APPLICATION =====
+    const trialManager = new TrialManager();
+    let currentQR = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      trialManager.enableTierFeatures(); // Enable fields if user is upgraded
+      trialManager.updateUI();
+      setupForm();
+      setDefaultExpiry();
+    });
+
+    function setupForm() {
+      document.getElementById('campaignForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        createCampaign();
+      });
+
+      // Add click handlers to disabled fields to show upgrade prompts
+      document.getElementById('backgroundImage').addEventListener('click', function(e) {
+        if (this.disabled) {
+          showUpgradePrompt('starter', 'background images');
+        }
+      });
+
+      document.getElementById('promoImage').addEventListener('click', function(e) {
+        if (this.disabled) {
+          showUpgradePrompt('starter', 'promo images');
+        }
+      });
+
+      document.getElementById('logoImage').addEventListener('click', function(e) {
+        if (this.disabled) {
+          showUpgradePrompt('pro', 'logo branding');
+        }
+      });
+    }
+
+    function showUpgradePrompt(tier, feature) {
+      const tierName = tier === 'starter' ? 'Starter ($9/month)' : 'Professional ($29/month)';
+      alert(`🎨 ${feature.toUpperCase()} REQUIRES UPGRADE!\n\nUpgrade to ${tierName} to unlock ${feature} and more premium features.`);
+      showPricing();
+    }
+
+    function setDefaultExpiry() {
+      const defaultDate = new Date();
+      defaultDate.setDate(defaultDate.getDate() + 7);
+      document.getElementById('expiryDate').value = defaultDate.toISOString().split('T')[0];
+    }
+
+    function createCampaign() {
+      // Check trial limits
+      if (!trialManager.canCreateCampaign()) {
+        if (trialManager.getDaysRemaining() === 0) {
+          alert('Trial expired! Please upgrade to continue.');
+          showPricing();
+        } else {
+          alert('Trial limit reached! Upgrade for unlimited campaigns.');
+          showPricing();
+        }
+        return;
+      }
+
+      // Get form data
+      const businessName = document.getElementById('businessName').value;
+      const phone = document.getElementById('businessPhone').value;
+      const email = document.getElementById('businessEmail').value;
+      const offer = document.getElementById('offerText').value;
+      const expiry = document.getElementById('expiryDate').value;
+      
+      // Get image data (will be empty for trial users)
+      const bgImage = document.getElementById('backgroundImage').value;
+      const promoImage = document.getElementById('promoImage').value;
+      const logoImage = document.getElementById('logoImage').value;
+
+      // Generate URL
+      const params = new URLSearchParams({
+        biz: businessName,
+        phone: phone,
+        email: email,
+        offer: offer,
+        expiry: expiry,
+        mode: 'promo'
+      });
+
+      // Only add images if they exist and user has access
+      if (bgImage && !document.getElementById('backgroundImage').disabled) {
+        params.set('bg', bgImage);
+      }
+      if (promoImage && !document.getElementById('promoImage').disabled) {
+        params.set('promoImg', promoImage);
+      }
+      if (logoImage && !document.getElementById('logoImage').disabled) {
+        params.set('logo', logoImage);
+      }
+
+      const url = window.location.origin + window.location.pathname + '?' + params.toString();
+      
+      // Display results
+      document.getElementById('generatedUrl').value = url;
+      document.getElementById('outputSection').style.display = 'block';
+      
+      // Generate QR code
+      if (currentQR) {
+        currentQR.clear();
+      }
+      currentQR = new QRCode(document.getElementById('qrcode'), {
+        text: url,
+        width: 128,
+        height: 128
+      });
+
+      // Update preview
+      updatePreview({ 
+        biz: businessName, 
+        offer: offer, 
+        phone: phone, 
+        email: email, 
+        expiry: expiry,
+        bgImage: bgImage,
+        promoImage: promoImage,
+        logoImage: logoImage,
+        tier: trialManager.currentTier
+      });
+      
+      // Track usage
+      trialManager.trackCampaign();
+      trialManager.updateUI();
+    }
+
+    function updatePreview(data) {
+      const preview = document.getElementById('previewContent');
+      
+      let imagesHTML = '';
+      if (data.tier === 'trial') {
+        imagesHTML = `
+          <div style="background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; text-align: center; margin: 1rem 0;">
+            <strong>🎨 Upgrade to see images here!</strong>
+            <div style="font-size: 0.8rem; color: #6b7280; margin-top: 0.5rem;">
+              Starter: Background & promo images<br>
+              Pro: Logo + full branding
+            </div>
+          </div>
+        `;
+      } else {
+        if (data.bgImage) {
+          imagesHTML += `<div style="margin: 0.5rem 0; padding: 0.5rem; background: #dcfce7; border-radius: 0.25rem;">✅ Background Image Ready</div>`;
+        }
+        if (data.promoImage) {
+          imagesHTML += `<div style="margin: 0.5rem 0; padding: 0.5rem; background: #dcfce7; border-radius: 0.25rem;">✅ Promo Image Ready</div>`;
+        }
+        if (data.logoImage) {
+          imagesHTML += `<div style="margin: 0.5rem 0; padding: 0.5rem; background: #bbf7d0; border-radius: 0.25rem;">⭐ Logo Ready</div>`;
+        }
+      }
+      
+      preview.innerHTML = `
+        <div class="preview-shell">
+          <div class="preview-header" style="${data.bgImage ? `background-image: url('${data.bgImage}'); background-size: cover;` : ''}">
+            <h3 style="margin: 0;">${data.biz}</h3>
+          </div>
+          <div class="preview-body">
+            <p><strong>Special Offer:</strong> ${data.offer}</p>
+            ${data.phone ? `<p>📞 ${data.phone}</p>` : ''}
+            ${data.email ? `<p>📧 ${data.email}</p>` : ''}
+            ${data.expiry ? `<p><small>Valid until: ${new Date(data.expiry).toLocaleDateString()}</small></p>` : ''}
+            ${imagesHTML}
+            <div style="margin-top: 1rem; padding: 0.5rem; background: #f0fdf4; border-radius: 0.25rem;">
+              <strong>Scan QR code to view on mobile</strong>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function copyUrl() {
+      const url = document.getElementById('generatedUrl');
+      url.select();
+      navigator.clipboard.writeText(url.value).then(() => {
+        alert('URL copied to clipboard!');
+      });
+    }
+
+    function shortenUrl() {
+      const longUrl = document.getElementById('generatedUrl').value;
+      window.open(`https://tinyurl.com/create.php?url=${encodeURIComponent(longUrl)}`, '_blank');
+    }
+
+    function showPricing() {
+      document.getElementById('mainForm').style.display = 'none';
+      document.getElementById('pricingTiers').style.display = 'block';
+      document.getElementById('upgradePrompt').style.display = 'none';
+    }
+
+    function showUpgrade() {
+      showPricing();
+    }
+
+    function upgradeTo(tier) {
+      // In real implementation, this would process payment
+      // For demo, we'll just upgrade immediately
+      trialManager.setTier(tier);
+      alert(`🎉 Welcome to Orbit ${tier.toUpperCase()}! All ${tier} features are now active.`);
+      
+      // Show main form again with enabled features
+      document.getElementById('mainForm').style.display = 'block';
+      document.getElementById('pricingTiers').style.display = 'none';
+      trialManager.updateUI();
+    }
+
+    // Handle URL parameters for viewing campaigns
+    function handleUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'promo') {
+        // Hide generator, show only preview
+        document.querySelector('.container').innerHTML = `
+          <div class="panel" style="width: 100%; max-width: 500px; margin: 0 auto;">
+            ${generatePromoPage(params)}
+          </div>
+        `;
+      }
+    }
+
+    function generatePromoPage(params) {
+      // Simple promo page generator
+      return `
+        <div class="preview-shell">
+          <div class="preview-header" style="${params.get('bg') ? `background-image: url('${params.get('bg')}'); background-size: cover;` : ''}">
+            <h3 style="margin: 0;">${params.get('biz') || 'Business'}</h3>
+          </div>
+          <div class="preview-body">
+            <p><strong>Special Offer:</strong> ${params.get('offer') || 'Check our latest promotion'}</p>
+            ${params.get('phone') ? `<p>📞 ${params.get('phone')}</p>` : ''}
+            ${params.get('email') ? `<p>📧 ${params.get('email')}</p>` : ''}
+            ${params.get('promoImg') ? `<img src="${params.get('promoImg')}" style="width: 100%; border-radius: 0.5rem; margin: 0.5rem 0;">` : ''}
+            <div style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: #666;">
+              Promo page created with Orbit Promo
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Initialize URL handling
+    handleUrlParams();
+  </script>
+</body>
+</html>
