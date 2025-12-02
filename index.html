@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Orbit Promo - 30-Day Pilot (South Africa & Curaçao)</title>
+  <title>Digital_Presence - 30-Day Pilot (South Africa & Curaçao)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* CRITICAL CSS ONLY - OPTIMIZED */
@@ -113,7 +113,7 @@
       
       <!-- PILOT BANNER -->
       <div class="pilot-banner">
-        <div>🚀 60-DAY PILOT PROGRAM</div>
+        <div>🚀 30-DAY PILOT PROGRAM</div>
         <div class="pilot-counter" id="pilotCounter">Dec 2024 - Jan 2025</div>
         <div style="font-size: 0.85rem;">South Africa (500 stores max) • Curaçao (200 stores max)</div>
       </div>
@@ -319,8 +319,8 @@
     // ===== 60-DAY PILOT MANAGEMENT =====
     class PilotManager {
       constructor() {
-        this.pilotStart = new Date('2024-12-01');
-        this.pilotEnd = new Date('2025-01-31');
+        this.pilotStart = new Date('2025-12-01');
+        this.pilotEnd = new Date('2026-01-01');
         this.countryLimits = {
           'ZA': 500, // South Africa
           'CW': 200  // Curaçao
@@ -336,7 +336,7 @@
       
       getPilotProgress() {
         const now = new Date();
-        const totalDays = 61; // Dec + Jan
+        const totalDays = 61; // Dec 
         const daysPassed = Math.floor((now - this.pilotStart) / (1000 * 60 * 60 * 24));
         return Math.min(100, Math.max(0, (daysPassed / totalDays) * 100));
       }
